@@ -1,10 +1,11 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import pagination, viewsets, permissions
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 
 from ads.filters import AdFilter
 from ads.models import Ad, Comment
-from ads.serializers import AdSerializer, AdDetailSerializer
+from ads.serializers import AdSerializer, AdDetailSerializer, CommentSerializer
 
 
 class AdPagination(pagination.PageNumberPagination):
@@ -41,4 +42,9 @@ class AdViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    pass
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        ad_instance = get_object_or_404(Ad, id=self.kwargs['ad_pk'])
+        return ad_instance.comment_set.all()
